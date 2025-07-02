@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:home_service_app/services/naviagationState.dart';
 
 class otpVerificationScreen extends StatefulWidget {
   const otpVerificationScreen({super.key});
@@ -14,7 +15,7 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
     (index) => TextEditingController(),
   );
   List<FocusNode> focusNodes = List.generate(4, (index) => FocusNode());
-
+  String errorMessage = '';
   @override
   void dispose() {
     for (var controller in controllers) {
@@ -34,21 +35,26 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
     }
   }
 
-  String getOtpValue() {
-    return controllers.map((controller) => controller.text).join();
-  }
-
   void _verifyOtp() {
     String otp = getOtpValue();
     if (otp.length == 4) {
-      ScaffoldMessenger.of(
+      setState(() {
+        errorMessage = '';
+      });
+      // Proceed to the next screen
+      Navigator.pushReplacement(
         context,
-      ).showSnackBar(SnackBar(content: Text('OTP Entered: $otp')));
+        MaterialPageRoute(builder: (_) => MainNavigation()),
+      );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please enter complete OTP')));
+      setState(() {
+        errorMessage = 'Please enter complete OTP.';
+      });
     }
+  }
+
+  String getOtpValue() {
+    return controllers.map((controller) => controller.text).join();
   }
 
   void _resendOtp() {
@@ -66,15 +72,6 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 8, top: 8),
-              //   child: IconButton(
-              //     icon: Icon(Icons.arrow_back, size: 28, color: Colors.black),
-              //     onPressed: () {
-              //       Navigator.of(context).pop();
-              //     },
-              //   ),
-              // ),
               SizedBox(height: 10),
               Center(
                 child: Container(
@@ -104,7 +101,6 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                 ),
               ),
               SizedBox(height: 40),
-              // Title
               Center(
                 child: Text(
                   'OTP Verification',
@@ -117,7 +113,6 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                 ),
               ),
               SizedBox(height: 16),
-              // Subtitle
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -145,7 +140,6 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                 ),
               ),
               SizedBox(height: 40),
-              // OTP fields
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -189,14 +183,25 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        onChanged: (value) => _onOtpChanged(value, index),
+                        onChanged: (value) {
+                          _onOtpChanged(value, index);
+                          if (index == 3 && value.isNotEmpty) {
+                            _verifyOtp();
+                          }
+                        },
                       ),
                     );
                   }),
                 ),
               ),
+              if (errorMessage.isNotEmpty)
+                Center(
+                  child: Text(
+                    errorMessage,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               SizedBox(height: 32),
-              // Resend OTP
               Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -221,7 +226,7 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                 ),
               ),
               SizedBox(height: 50),
-              // Verify Button
+
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -238,7 +243,9 @@ class _otpVerificationScreenState extends State<otpVerificationScreen> {
                         elevation: 2,
                         shadowColor: Colors.black26,
                       ),
-                      onPressed: _verifyOtp,
+                      onPressed: () {
+                        _verifyOtp();
+                      },
                       child: Text(
                         'VERIFY & PROCEED',
                         style: TextStyle(

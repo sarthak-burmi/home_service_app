@@ -1,18 +1,42 @@
 import 'dart:ui';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:home_service_app/widgets/wavePainter.dart';
+import 'package:home_service_app/screens/OTP_screen.dart';
+import 'package:home_service_app/screens/login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  Country selectedCountry = Country.parse('US'); // Default to USA
+  Country selectedCountry = Country.parse('US');
+  final TextEditingController phoneController = TextEditingController();
+  String errorMessage = '';
+  void validateInput() {
+    String phoneNumber = phoneController.text.trim();
+    if (phoneNumber.isEmpty ||
+        phoneNumber.length != 10 ||
+        !RegExp(r'^\d{10}$').hasMatch(phoneNumber)) {
+      setState(() {
+        errorMessage = 'Please enter a valid 10-digit mobile number.';
+      });
+    } else {
+      setState(() {
+        errorMessage = '';
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => otpVerificationScreen()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -21,22 +45,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
             Stack(
               children: [
                 SizedBox(
-                  height: 280, 
-                  width: double.infinity,
-                  child: CustomPaint(painter: WavePainter()),
-                ),
-          
-                SizedBox(
-                  height: 280,
+                  height: size.height * 0.32,
                   width: double.infinity,
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 20,
-                      ),
+                      padding: EdgeInsets.only(top: size.height * 0.025),
                       child: Image.asset(
                         'assets/images/LoginImage.png',
-                        height: 240, // Adjusted size
+                        height: size.height * 0.40,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -46,36 +62,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.06),
                 child: Column(
                   children: [
-                    SizedBox(height: 32), 
+                    SizedBox(height: size.height * 0.04),
                     Text(
                       'Your Home services Expert',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 22, 
+                        fontSize: size.width * 0.055,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: size.height * 0.015),
                     Text(
                       'Continue with Phone Number',
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 16, 
+                        fontSize: size.width * 0.04,
                       ),
                     ),
-                    SizedBox(height: 32), 
+                    SizedBox(height: size.height * 0.04),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[50], // Light background
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(size.width * 0.03),
                         border: Border.all(color: Colors.grey[300]!),
                       ),
                       child: Row(
                         children: [
-                       
                           GestureDetector(
                             onTap: () {
                               showCountryPicker(
@@ -87,16 +102,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   });
                                 },
                                 countryListTheme: CountryListThemeData(
-                                  flagSize: 25,
                                   backgroundColor: Colors.white,
                                   textStyle: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: size.width * 0.04,
                                     color: Colors.blueGrey,
                                   ),
-                                  bottomSheetHeight: 500,
+                                  bottomSheetHeight: size.height * 0.6,
                                   borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(20.0),
-                                    topRight: Radius.circular(20.0),
+                                    topLeft: Radius.circular(size.width * 0.05),
+                                    topRight: Radius.circular(
+                                      size.width * 0.05,
+                                    ),
                                   ),
                                   inputDecoration: InputDecoration(
                                     labelText: 'Search',
@@ -115,117 +131,118 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
+                                horizontal: size.width * 0.04,
+                                vertical: size.height * 0.02,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
                                     selectedCountry.flagEmoji,
-                                    style: TextStyle(fontSize: 20),
+                                    style: TextStyle(
+                                      fontSize: size.width * 0.05,
+                                    ),
                                   ),
-                                  SizedBox(width: 8),
+                                  SizedBox(width: size.width * 0.02),
                                   Text(
                                     '(${selectedCountry.countryCode})',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: size.width * 0.04,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  SizedBox(width: size.width * 0.02),
                                   Text(
                                     '+${selectedCountry.phoneCode}',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: size.width * 0.04,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  SizedBox(width: 4),
+                                  SizedBox(width: size.width * 0.01),
                                   Icon(
                                     Icons.keyboard_arrow_down,
-                                    size: 20,
+                                    size: size.width * 0.05,
                                     color: Colors.grey[600],
                                   ),
                                 ],
                               ),
                             ),
                           ),
-
-                          // Divider
                           Container(
-                            height: 24,
+                            height: size.height * 0.03,
                             width: 1,
                             color: Colors.grey[300],
                           ),
-
-                          // Phone number input
                           Expanded(
                             child: TextField(
+                              controller: phoneController,
                               decoration: InputDecoration(
                                 hintText: 'Enter Mobile Number',
                                 hintStyle: TextStyle(
                                   color: Colors.grey[500],
-                                  fontSize: 16,
+                                  fontSize: size.width * 0.04,
                                 ),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
+                                  horizontal: size.width * 0.04,
+                                  vertical: size.height * 0.02,
                                 ),
+                                errorText:
+                                    errorMessage.isEmpty ? null : errorMessage,
                               ),
                               keyboardType: TextInputType.phone,
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: size.width * 0.04),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 32),
+                    SizedBox(height: size.height * 0.04),
                     SizedBox(
                       width: double.infinity,
-                      height: 52, 
+                      height: size.height * 0.065,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(26),
+                            borderRadius: BorderRadius.circular(
+                              size.height * 0.032,
+                            ),
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          validateInput();
+                        },
                         child: Text(
                           'SIGN UP',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: size.width * 0.04,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
                         ),
                       ),
                     ),
-
-                    SizedBox(height: 20),
-
+                    SizedBox(height: size.height * 0.025),
                     GestureDetector(
                       onTap: () {},
                       child: Text(
                         'VIEW OTHER OPTION',
                         style: TextStyle(
-                          color: Color(0xFF6B9FFF), 
+                          color: Color(0xFF6B9FFF),
                           fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                          fontSize: size.width * 0.035,
                           letterSpacing: 0.3,
                         ),
                       ),
                     ),
-
-                    Spacer(), 
+                    Spacer(),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
+                      padding: EdgeInsets.only(bottom: size.height * 0.03),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -233,19 +250,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'ALREADY HAVE AN ACCOUNT? ',
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 14,
+                              fontSize: size.width * 0.035,
                               letterSpacing: 0.3,
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => LoginScreen(),
+                                ),
+                              );
+                            },
                             child: Text(
                               'LOG IN',
                               style: TextStyle(
-                                color: Color(
-                                  0xFF6B9FFF,
-                                ), 
-                                fontSize: 14,
+                                color: Color(0xFF6B9FFF),
+                                fontSize: size.width * 0.035,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.3,
                               ),
